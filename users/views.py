@@ -11,4 +11,3 @@ class PaymentsViewSet(viewsets.ModelViewSet):
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['pay_method', 'lesson', 'course']
     ordering_fields = ['date']
-
