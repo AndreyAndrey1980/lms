@@ -8,6 +8,7 @@ from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView,
 
 
 class CourseViewSet(viewsets.ModelViewSet):
+    """CRUD для курсов."""
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
 
