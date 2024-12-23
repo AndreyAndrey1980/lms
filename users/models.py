@@ -4,14 +4,20 @@ from materials.models import Lesson, Course
 
 
 class User(AbstractUser):
-    username = None
+    username = models.CharField(max_length=30)
     email = models.EmailField(verbose_name='почта', unique=True)
     phone_number = models.CharField(max_length=20)
     city = models.CharField(max_length=30)
     avatar = models.ImageField(upload_to='images', null=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = [email]
+    REQUIRED_FIELDS = ('username', 'password', 'first_name', 'last_name')
+
+    @property
+    def role(self):
+        if self.groups.filter(name="Moderators").exists():
+            return 'Модератор'
+        return 'Пользователь'
 
 
 class Payments(models.Model):

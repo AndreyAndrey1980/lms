@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from rest_framework import routers
+from django.urls import path
 
 
 router = routers.DefaultRouter()
@@ -11,7 +12,7 @@ urlpatterns = [
     path("lesson/<int:pk>/", views.LessonRetrieveApiView.as_view(), name="lesson_retrieve"),
     path("lesson/create/", views.LessonCreateApiView.as_view(), name="lesson_create"),
     path("lesson/<int:pk>/delete/", views.LessonDestroyApiView.as_view(), name="lesson_delete"),
-    path("lesson/<int:pk>/update/", views.LessonUpdateApiView.as_view(), name="lesson_update")
+    path("lesson/<int:pk>/update/", views.LessonUpdateApiView.as_view(), name="lesson_update"),
 ]
 
 urlpatterns += router.urls
