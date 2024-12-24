@@ -1,18 +1,15 @@
-from rest_framework import permissions
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 from .models import Course, Lesson
 
-class OwnerOrModeratorPermission(permissions.BasePermission):
-    def has_permission(self, request, view):
-        if view.action == 'create' or view.action == 'destroy':
-            return False
-        return True
 
-    def has_object_permission(self, request, view, obj):
-        if request.user.groups.filter(name='Moderators').exists():
-            return view.action not in ['create', 'destroy']
-        if isinstance(obj, Course):
-            return obj.owner == request.user
-        if isinstance(obj, Lesson):
-            return obj.owner == request.user
-        return False
+class OwnerOrModeratorPermission(BasePermission):
+    """
+    Доступ авторизованным пользователям
+    Модераторы не могут создавать или удалять объекты.
+    """
+    def has_permission(self, request, view):
+        if request.method == 'POST' or request.method == 'DELETE':
+            return not request.user.groups.filter(name='Moderators')
+        return request.user.is_authenticated or request.user.groups.filter(name='Moderators')
+

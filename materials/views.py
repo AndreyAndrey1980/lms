@@ -1,9 +1,9 @@
 from .serializers import LessonSerializer, CourseSerializer
 from rest_framework import viewsets
 from .models import Lesson, Course
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView
 from .permissions import OwnerOrModeratorPermission
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import  PermissionDenied
 
 PERMISSION_CLASSES = [IsAuthenticated, OwnerOrModeratorPermission]
 
@@ -14,29 +14,28 @@ class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     permission_classes = PERMISSION_CLASSES
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+        return super().perform_create(serializer)
 
-class LessonCreateApiView(CreateAPIView):
+    def perform_destroy(self, instance):
+        if instance.owner != self.request.user:
+            raise PermissionDenied('Вы не можете удалить чужой контент.')
+        return super().perform_destroy(instance)
+
+
+class LessionViewSet(viewsets.ModelViewSet):
+    """CRUD для уроков."""
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = PERMISSION_CLASSES
+    http_method_names = ('get', 'post', 'patch', 'delete')
 
-class LessonListApiView(ListAPIView):
-    queryset = Lesson.objects.all()
-    serializer_class = LessonSerializer
-    permission_classes = PERMISSION_CLASSES
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+        return super().perform_create(serializer)
 
-
-class LessonRetrieveApiView(RetrieveAPIView):
-    queryset = Lesson.objects.all()
-    serializer_class = LessonSerializer
-    permission_classes = PERMISSION_CLASSES
-
-class LessonUpdateApiView(UpdateAPIView):
-    queryset = Lesson.objects.all()
-    serializer_class = LessonSerializer
-    permission_classes = PERMISSION_CLASSES
-
-class LessonDestroyApiView(DestroyAPIView):
-    queryset = Lesson.objects.all()
-    serializer_class = LessonSerializer
-    permission_classes = PERMISSION_CLASSES
+    def perform_destroy(self, instance):
+        if instance.owner != self.request.user:
+            raise PermissionDenied('Вы не можете удалить чужой контент.')
+        return super().perform_destroy(instance)

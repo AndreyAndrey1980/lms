@@ -11,7 +11,7 @@ class User(AbstractUser):
     avatar = models.ImageField(upload_to='images', null=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ('username', 'password', 'first_name', 'last_name')
+    REQUIRED_FIELDS = ['username', 'password']
 
     @property
     def role(self):

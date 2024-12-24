@@ -6,7 +6,16 @@ from .models import Lesson, Course
 class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
-        fields = ['id', 'name', 'description', 'preview', 'video_url', 'course']
+        fields = ['id', 'name', 'description', 'preview', 'video_url', 'course' 'owner']
+
+    def validate(self, attrs):
+        if 'owner' in self.initial_data and self.context['request']:
+            raise serializers.ValidationError('Вы не владелец.')
+        return attrs
+
+    def create(self, validated_data):
+        validated_data['owner'] = self.context['request'].user
+        return super().create(validated_data)
 
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -21,4 +30,13 @@ class CourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ['id', 'name', 'description', 'preview', 'lesson_count', 'lessons']
+        fields = ['id', 'name', 'description', 'preview', 'lesson_count', 'lessons', 'owner']
+
+    def validate(self, attrs):
+        if 'owner' in self.initial_data and self.context['request']:
+            raise serializers.ValidationError('Вы не владелец.')
+        return attrs
+
+    def create(self, validated_data):
+        validated_data['owner'] = self.context['request'].user
+        return super().create(validated_data)
