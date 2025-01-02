@@ -14,7 +14,6 @@ router = routers.DefaultRouter()
 router.register(r'payments', views.PaymentsViewSet, basename='payments')
 
 
-
 urlpatterns = [
     path('', include(router.urls)),
     path('register/', views.UsersCreateAPIView.as_view(), name='register'),

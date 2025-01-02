@@ -4,6 +4,7 @@ from materials.models import Lesson, Course
 import random
 import datetime
 
+
 class Command(BaseCommand):
     def handle(self, *args, **options):
         User.objects.create(email="user3@mail.ru", phone_number="+796678", city="Moscow", password='lms12345')
