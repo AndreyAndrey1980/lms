@@ -6,7 +6,7 @@ from .models import Lesson, Course
 class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
-        fields = ['id', 'name', 'description', 'preview', 'video_url', 'course' 'owner']
+        fields = ['id', 'name', 'description', 'preview', 'video_url', 'course', 'owner']
 
     def validate(self, attrs):
         if 'owner' in self.initial_data and self.context['request']:

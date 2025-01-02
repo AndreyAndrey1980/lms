@@ -1,26 +1,26 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from materials.models import Lesson, Course
 
 
 class User(AbstractUser):
-    username = models.CharField(max_length=30)
     email = models.EmailField(verbose_name='почта', unique=True)
-    phone_number = models.CharField(max_length=20)
-    city = models.CharField(max_length=30)
+    phone_number = models.CharField(max_length=20, null=True)
+    city = models.CharField(max_length=300, null=True)
     avatar = models.ImageField(upload_to='images', null=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'password']
+    REQUIRED_FIELDS = ['password']
 
     @property
     def role(self):
-        if self.groups.filter(name="Moderators").exists():
-            return 'Модератор'
-        return 'Пользователь'
+        if self.groups.filter(name="moderators").exists():
+            return "moderator"
+        return "user"
 
 
 class Payments(models.Model):
+    from materials.models import Lesson, Course
+
     class SubjectType(models.TextChoices):
         LESSON = "lesson"
         COURSE = "course"

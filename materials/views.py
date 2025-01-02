@@ -1,41 +1,45 @@
 from .serializers import LessonSerializer, CourseSerializer
 from rest_framework import viewsets
 from .models import Lesson, Course
-from .permissions import OwnerOrModeratorPermission
+from users.permissions import IsModerator, IsOwner
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import  PermissionDenied
-
-PERMISSION_CLASSES = [IsAuthenticated, OwnerOrModeratorPermission]
+from rest_framework.exceptions import PermissionDenied
 
 
 class CourseViewSet(viewsets.ModelViewSet):
     """CRUD для курсов."""
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
-    permission_classes = PERMISSION_CLASSES
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
-        return super().perform_create(serializer)
 
-    def perform_destroy(self, instance):
-        if instance.owner != self.request.user:
-            raise PermissionDenied('Вы не можете удалить чужой контент.')
-        return super().perform_destroy(instance)
+    def get_permissions(self):
+        if self.action == 'create':
+            self.permission_classes = (IsAuthenticated, )
+        elif self.action in ['update', 'retrieve']:
+            self.permission_classes = (IsAuthenticated, IsModerator | IsOwner)
+        elif self.action == "destroy":
+            self.permission_classes = (IsAuthenticated, IsOwner)
+
+        return super().get_permissions()
 
 
 class LessionViewSet(viewsets.ModelViewSet):
     """CRUD для уроков."""
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
-    permission_classes = PERMISSION_CLASSES
     http_method_names = ('get', 'post', 'patch', 'delete')
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
-        return super().perform_create(serializer)
 
-    def perform_destroy(self, instance):
-        if instance.owner != self.request.user:
-            raise PermissionDenied('Вы не можете удалить чужой контент.')
-        return super().perform_destroy(instance)
+    def get_permissions(self):
+        if self.action == 'create':
+            self.permission_classes = (IsAuthenticated, ~IsModerator)
+        elif self.action in ['update', 'retrieve']:
+            self.permission_classes = (IsAuthenticated, IsModerator | IsOwner)
+        elif self.action == "destroy":
+            self.permission_classes = (IsAuthenticated, ~IsModerator, IsOwner)
+
+        return super().get_permissions()
