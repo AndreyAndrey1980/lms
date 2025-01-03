@@ -9,4 +9,5 @@ router = routers.DefaultRouter()
 router.register(r'course', views.CourseViewSet, basename='courses')
 router.register(r'lesson', views.LessionViewSet, basename='lessons')
 
-urlpatterns = [path('', include(router.urls))]
+urlpatterns = [
+    path('', include(router.urls))]

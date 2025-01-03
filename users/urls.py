@@ -19,4 +19,6 @@ urlpatterns = [
     path('register/', views.UsersCreateAPIView.as_view(), name='register'),
     path('login/', TokenObtainPairView.as_view(permission_classes=(AllowAny,)), name='login'),  # api/token
     path('token/refresh/', TokenRefreshView.as_view(permission_classes=(AllowAny,)), name='token_refresh'),
+    path('subscribe', views.SubscribeAPIView.as_view(), name='subscribe'),
+    path('unsubscribe', views.UnsubscribeAPIView.as_view(), name='unsubscribe')
 ]

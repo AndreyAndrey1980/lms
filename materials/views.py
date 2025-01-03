@@ -3,13 +3,14 @@ from rest_framework import viewsets
 from .models import Lesson, Course
 from users.permissions import IsModerator, IsOwner
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import PermissionDenied
+from .paginators import MyPagination
 
 
 class CourseViewSet(viewsets.ModelViewSet):
     """CRUD для курсов."""
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
+    pagination_class = MyPagination
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -30,6 +31,7 @@ class LessionViewSet(viewsets.ModelViewSet):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     http_method_names = ('get', 'post', 'patch', 'delete')
+    pagination_class = MyPagination
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)

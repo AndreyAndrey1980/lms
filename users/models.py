@@ -36,3 +36,9 @@ class Payments(models.Model):
     pay_method = models.CharField(max_length=8, choices=PayMethod.choices)
     lesson = models.ForeignKey(Lesson, on_delete=models.PROTECT, null=True)
     course = models.ForeignKey(Course, on_delete=models.PROTECT, null=True)
+
+
+class Subscription(models.Model):
+    from materials.models import Course
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    course = models.ForeignKey(Course, on_delete=models.PROTECT)

@@ -1,9 +1,13 @@
 from rest_framework import serializers
 from rest_framework.viewsets import ModelViewSet
 from .models import Lesson, Course
+from .validators import validate_video_url
+from users.models import Subscription
 
 
 class LessonSerializer(serializers.ModelSerializer):
+    video_url = serializers.CharField(validators=[validate_video_url])
+
     class Meta:
         model = Lesson
         fields = ['id', 'name', 'description', 'preview', 'video_url', 'course', 'owner']
@@ -19,18 +23,24 @@ class LessonSerializer(serializers.ModelSerializer):
 
 
 class CourseSerializer(serializers.ModelSerializer):
+    is_subscribe = serializers.SerializerMethodField()
     lesson_count = serializers.SerializerMethodField()
     lessons = LessonSerializer(source='lesson_set', many=True, read_only=True)
+
+    def get_is_subscribe(self, course):
+        user = self.context['request'].user
+        try:
+            subs_item = Subscription.objects.get(user=user, course=course)
+            return True
+        except Subscription.DoesNotExist:
+            return False
 
     def get_lesson_count(self, course):
         return len(Lesson.objects.filter(course=course))
 
-    def get_lessons(self, course):
-        return [LessonSerializer(lesson).data for lesson in Lesson.objects.filter(course=course)]
-
     class Meta:
         model = Course
-        fields = ['id', 'name', 'description', 'preview', 'lesson_count', 'lessons', 'owner']
+        fields = ['id', 'name', 'description', 'preview', 'lesson_count', 'lessons', 'owner', 'is_subscribe']
 
     def validate(self, attrs):
         if 'owner' in self.initial_data and self.context['request']:
