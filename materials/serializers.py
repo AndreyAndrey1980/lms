@@ -40,7 +40,7 @@ class CourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ['id', 'name', 'description', 'preview', 'lesson_count', 'lessons', 'owner', 'is_subscribe']
+        fields = ['id', 'name', 'description', 'amount', 'preview', 'lesson_count', 'lessons', 'owner', 'is_subscribe']
 
     def validate(self, attrs):
         if 'owner' in self.initial_data and self.context['request']:

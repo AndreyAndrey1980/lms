@@ -8,6 +8,7 @@ class Course(models.Model):
     description = models.TextField()
     preview = models.ImageField(upload_to='images', null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    price = models.PositiveIntegerField(default=100, null=False)
 
     def __str__(self):
         return self.name

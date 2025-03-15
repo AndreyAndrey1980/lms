@@ -12,6 +12,18 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import os
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path='./.env')
+
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', None)
+STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY', None)
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', None)
+
+assert STRIPE_SECRET_KEY is not None
+assert STRIPE_PUBLISHABLE_KEY is not None
+assert STRIPE_WEBHOOK_SECRET is not None
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,6 +53,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'users.apps.UsersConfig',
     'materials.apps.MaterialsConfig',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [

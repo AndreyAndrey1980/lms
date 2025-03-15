@@ -20,5 +20,8 @@ urlpatterns = [
     path('login/', TokenObtainPairView.as_view(permission_classes=(AllowAny,)), name='login'),  # api/token
     path('token/refresh/', TokenRefreshView.as_view(permission_classes=(AllowAny,)), name='token_refresh'),
     path('subscribe', views.SubscribeAPIView.as_view(), name='subscribe'),
-    path('unsubscribe', views.UnsubscribeAPIView.as_view(), name='unsubscribe')
+    path('unsubscribe', views.UnsubscribeAPIView.as_view(), name='unsubscribe'),gi
+    path('create-product/', views.CreateProductAPIView.as_view(), name='create_product'),
+    path('create-payment-intent/', views.CreatePaymentIntentAPIView.as_view(), name='create_payment_intent'),
+    path('stripe-webhook/', views.StripeWebhookAPIView.as_view(), name='stripe_webhook'),
 ]
