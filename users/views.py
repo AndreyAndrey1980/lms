@@ -1,15 +1,17 @@
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse, HttpResponse
 from rest_framework import viewsets
 from .models import Payments, User, Subscription
 from .serializers import PaymentsSerializer, UserSerializer
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.conf import settings
 from rest_framework.generics import CreateAPIView
 from rest_framework.views import APIView
 from materials.models import Course, Lesson
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from users.stripe import create_or_fetch_stripe_product
+from users.stripe import create_session
 
 
 class PaymentsViewSet(viewsets.ModelViewSet):
@@ -30,12 +32,14 @@ class PaymentsViewSet(viewsets.ModelViewSet):
 
             if subject_type == Payments.SubjectType.COURSE:
                 course: Course | None = get_object_or_404(Course, id=course_id)
-                session = create_or_fetch_stripe_product(course,
-                    amount, user, subject_type)
+                subject_name = course.name
+                subject_desc = course.description
+                session = create_session(subject_name, amount)
             elif subject_type == Payments.SubjectType.LESSON:
                 lesson: Lesson | None = get_object_or_404(Lesson, id=lesson_id)
-                session = create_or_fetch_stripe_product(lesson,
-                    amount, user, subject_type)
+                subject_name = lesson.title
+                subject_desc = lesson.description
+                session = create_session(subject_name, amount)
             else:
                 return Response({'error': 'Invalid subject type'}, status=400)
 

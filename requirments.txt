@@ -12,3 +12,6 @@ sqlparse==0.5.2
 stripe
 tzdata==2024.2
 psycopg2==2.9.10
+django-celery-beat
+redis
+django-celery-results

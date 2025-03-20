@@ -9,59 +9,32 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from users.models import Payments
 
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
-def create_or_fetch_stripe_product(subject: Course | Lesson, amount: int,
-        user, subject_type):
+def create_product(name):
+    """Создает объект продукта"""
+    product = stripe.Product.create(name=name)
+    return product
 
-    stripe.api_key = settings.STRIPE_SECRET_KEY
 
-    stripe_product = None
-    stripe_price = None
-
-    existing_products = stripe.Product.list(limit=100) 
-    for product in existing_products['data']:
-        if product['name'] == subject.name:
-            stripe_product = product
-            break
-
-    if stripe_product:
-        existing_prices = stripe.Price.list(product=stripe_product.id, active=True)
-        for price in existing_prices['data']:
-            if price['unit_amount'] == amount:
-                stripe_price = price
-                break
-
-    if not stripe_product:
-        stripe_product = stripe.Product.create(
-            name=subject.name,
-            description=subject.description,
-            images=[subject.preview] if subject.preview else []
-        )
-
-    if not stripe_price:
-        stripe_price = stripe.Price.create(
-            product=stripe_product.id,
-            unit_amount=amount,
-            currency='usd'
-        )
-    
-    session = stripe.checkout.Session.create(
-        payment_method_types=['card'],
-        line_items=[{
-            'price': stripe_price.id,
-            'quantity': 1,
-        }],
-        mode='payment',
-        success_url="http://localhost:8000/stripe/success/",
-        cancel_url="http://localhost:8000/stripe/cancel/",
-        metadata={
-            'user_id': user.id,
-            'subject': subject_type,
-            'course_id': subject.id if subject_type == Payments.SubjectType.COURSE else '',
-            'lesson_id': subject.id if subject_type == Payments.SubjectType.LESSON else '',
-        }
+def create_price(price, name):
+    """Создает объект цены"""
+    product_id = create_product(name).id
+    response = stripe.Price.create(
+        currency="rub",
+        unit_amount=int(price * 100),
+        product=product_id
     )
+    return response
 
+
+def create_session(price, name):
+    """Создает сессию в Stripe и возвращает ID и URL сессии"""
+    session = stripe.checkout.Session.create(
+        success_url="http://127.0.0.1:8000/courses/",
+        line_items=[{"price": create_price(price, name), "quantity": 1}],
+        mode="payment",
+    )
     return session
 
 

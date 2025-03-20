@@ -17,14 +17,6 @@ from dotenv import load_dotenv
 
 load_dotenv(dotenv_path='./.env')
 
-STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', None)
-STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY', None)
-STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', None)
-
-assert STRIPE_SECRET_KEY is not None
-assert STRIPE_PUBLISHABLE_KEY is not None
-assert STRIPE_WEBHOOK_SECRET is not None
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -33,6 +25,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-%b^d+sq!=v!hbq(yj#ou6had#50m-xw3d!#yf2xb9s+q54on4#'
+
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', None)
+STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY', None)
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', None)
+CELERY_BROKER_URL =  os.getenv('CELERY_BROKER_URL', None)
+
+assert STRIPE_SECRET_KEY is not None
+assert STRIPE_PUBLISHABLE_KEY is not None
+assert STRIPE_WEBHOOK_SECRET is not None
+assert CELERY_BROKER_URL is not None
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -53,7 +55,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'users.apps.UsersConfig',
     'materials.apps.MaterialsConfig',
-    'drf_yasg',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [

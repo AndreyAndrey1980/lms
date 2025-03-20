@@ -3,6 +3,10 @@ from users.models import Subscription, User
 from materials.models import Course, Lesson
 from django.urls import reverse
 from rest_framework import status
+from django.test import TestCase
+from django.utils.timezone import now, timedelta
+from django.core import mail
+from materials.celery import send_course_update_email, deactivate_inactive_users
 
 
 class SubscriptionTests(APITestCase):
@@ -100,3 +104,28 @@ class LessonsTests(APITestCase):
 
     def tearDown(self):
         pass
+
+
+
+class CeleryTaskTests(TestCase):
+    def setUp(self):
+        self.active_user = User.objects.create_user(email="user1@example.com", password="testpassword", last_login=now() - timedelta(days=10))
+        self.inactive_user = User.objects.create_user(email="user2@example.com", password="testpassword", last_login=now() - timedelta(days=40))
+        self.course = Course.objects.create(name="Test Course", description="Test Description")
+        Subscription.objects.create(user=self.active_user, course=self.course)
+    
+    def test_send_course_update_email(self):
+        send_course_update_email(self.course.id)
+        
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("Update: Test Course", mail.outbox[0].subject)
+        self.assertIn(self.active_user.email, mail.outbox[0].to)
+    
+    def test_deactivate_inactive_users(self):
+        deactivate_inactive_users()
+        
+        self.active_user.refresh_from_db()
+        self.inactive_user.refresh_from_db()
+
+        self.assertTrue(self.active_user.is_active)
+        self.assertFalse(self.inactive_user.is_active)
