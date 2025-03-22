@@ -35,14 +35,16 @@ class PaymentsViewSet(viewsets.ModelViewSet):
                 subject_name = course.name
                 subject_desc = course.description
                 session = create_session(subject_name, amount)
+                serializer = self.get_serializer(data={"user": request.user, "course":course})
             elif subject_type == Payments.SubjectType.LESSON:
                 lesson: Lesson | None = get_object_or_404(Lesson, id=lesson_id)
                 subject_name = lesson.title
                 subject_desc = lesson.description
                 session = create_session(subject_name, amount)
+                serializer = self.get_serializer(data={"user": request.user, "lesson":lesson})
             else:
                 return Response({'error': 'Invalid subject type'}, status=400)
-
+            serializer.save()
             return Response({'session_id': session.id, 'stripe_url': session.url})
 
         except Exception as e:

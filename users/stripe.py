@@ -45,35 +45,3 @@ def stripe_success(request):
 def stripe_cancel(request):
     return JsonResponse({"message": "Payment canceled. Try again."})
 
-
-@method_decorator(csrf_exempt, name='dispatch')
-class StripeWebhookAPIView(APIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request):
-        webhook_secret = settings.STRIPE_WEBHOOK_SECRET
-        payload = request.body
-        signature_header = request.headers.get("Stripe-Signature")
-        if not signature_header:
-            return JsonResponse({"error": "Missing Stripe-Signature header"}, status=400)
-
-        endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
-
-        try:
-            event = stripe.Webhook.construct_event(
-                payload=request.body,
-                sig_header=signature_header,
-                secret=webhook_secret
-            )
-            print("Webhook received:", event["type"])
-
-        except ValueError as e:
-            return Response({'error': 'Invalid payload'}, status=400)
-        except stripe.error.SignatureVerificationError as e:
-            print("Invalid signature:", str(e))
-            return JsonResponse({"error": "Invalid signature"}, status=400)
-
-        if event['type'] == 'payment_intent.succeeded':
-            payment_intent = event['data']['object']
-
-        return Response({'status': 'success'}, status=201)
